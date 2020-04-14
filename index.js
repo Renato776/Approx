@@ -16,7 +16,7 @@ const Approx = {
     express_interval:function(a,b){
         return "["+a+","+b+"]";
     },
-    bisect:function(x0,gap){
+    bisect:function(x0,gap,debug = false){
         let MAX_INTENTS = 3000;
         let FATAL_FAILURE = 0;
         const exactitud = Math.pow(10,-6);
@@ -28,7 +28,7 @@ const Approx = {
             FATAL_FAILURE++;
         }
         if(FATAL_FAILURE==MAX_INTENTS){
-            Printing.printLog(this.express_interval(a,x0));
+            if(debug)Printing.printLog(this.express_interval(a,x0));
             return NaN;
         }
         if(y0==0)return a;
@@ -55,7 +55,7 @@ const Approx = {
             }
         }
         if(FATAL_FAILURE==MAX_INTENTS){
-            Printing.errorLog("NO root found anywhere within "+this.express_interval(a - gap*MAX_INTENTS,a+gap*MAX_INTENTS))
+            if(debug)Printing.errorLog("NO root found anywhere within "+this.express_interval(a - gap*MAX_INTENTS,a+gap*MAX_INTENTS))
             return NaN;
         }
         FATAL_FAILURE = 0;
@@ -79,12 +79,14 @@ const Approx = {
             FATAL_FAILURE++;
         }
         if(FATAL_FAILURE==MAX_INTENTS){
-            Printing.errorLog("Couldn't find exact enough root for an exactness of: "+exactitud+" With a total of " +
+            if(debug)Printing.errorLog("Couldn't find exact enough root for an exactness of: "+exactitud+" With a total of " +
                 MAX_INTENTS+" tries.");
             return NaN;
         }
-        Printing.printLog('error: '+error);
-        Printing.printLog('result: '+x);
+        if(debug) {
+            Printing.printLog('error: ' + error);
+            Printing.printLog('result: ' + x);
+        }
         return x;
     },
     sign_change : function(a,b){
