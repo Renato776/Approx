@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aproximacion Numerica</title>
+</head>
+<body>
+<h1>Aproximacion Numerica</h1>
+<textarea cols = "102" rows = "30" id = "source">
+    function test(t,y){
+    return 1+y/t;
+    }
+    Approx.taylor(test,2,5,1,2);
+    Approx.adams_bashforth(test,2,5,1,2,4);
+    Approx.adams_moulton(test,2,5,1,2,3);
+</textarea>
+<br>
+<button onclick="approximate()">Aproximar</button>
+<br>
+<textarea id = "output" cols = "102" rows = "30"></textarea>
+<script src="lib.js"></script>
+<script src="index.js"></script>
+</body>
+</html>

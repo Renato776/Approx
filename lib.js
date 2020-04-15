@@ -1,5 +1,9 @@
 const Printing = {
-    table_size:80,
+    table_size:100,
+    output: "output",
+    set_text:function(text){
+        document.getElementById(this.output).value = text;
+    },
     set_table_size:function(size){
         this.table_size = size;
     },
@@ -68,11 +72,16 @@ const Printing = {
         }
         return s;
     },
+    get_source:function(element){
+        return document.getElementById(element).value;
+    },
     printLog:function(text){
-        console.log(text);
+        let s = this.get_source(this.output);
+        s+=text+"\n";
+        this.set_text(s);
     },
     errorLog:function (error_) {
-        console.log("FATAL ERROR: "+error_);
+        this.printLog("FATAL ERROR: "+error_);
     }
 };
 const Approx = {
@@ -181,7 +190,7 @@ const Approx = {
     },
     euler:function(f,alpha,h,a,b,debug = true){
         let n = Math.floor((b - a)/h);
-        let w = {};
+        let w = {a:a,h:h};
         w[0] = alpha;
         for (let i = 0; i<n;i++){
             w[i+1] = w[i] + h * f(a+h*i,w[i]);
@@ -319,5 +328,3 @@ const Approx = {
         return values;
     }
 };
-exports.printing = Printing;
-exports.approx = Approx;
