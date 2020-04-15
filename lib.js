@@ -393,7 +393,7 @@ const Approx = {
                 ans = this.register_derivative(ans,f,x0+i*h,Math.abs(h),method,direction);
             }
         }
-        this.show_derivative(ans);
+        if(debug)this.show_derivative(ans);
         return ans.dy;
     },
     show_derivative:function(data){
