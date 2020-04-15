@@ -218,7 +218,7 @@ const Approx = {
             w[i+1] = w[i]+h*t(a+h*i,w[i]);
         }
         if(debug){
-            Printing.print_table_title("Taylor of "+functions.length+" order");
+            Printing.print_table_title("Taylor of order "+functions.length);
             this.show_table(w);
         }
         if(get_all)return w;
@@ -236,7 +236,7 @@ const Approx = {
         if(!Array.isArray(initial_values)){
             //NO initial values where provided, this means we gotta take them from Taylor.
             if(default_config){
-                let j = this.taylor(f,initial_values,n,a,b,false,true);
+                let j = this.taylor(f_,initial_values,n,a,b,false,true);
                 initial_values = new Array(steps);
                 for (let i = 0; i<steps;i++){
                     initial_values[i] = j[i];
