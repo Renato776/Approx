@@ -326,5 +326,8 @@ const Approx = {
             values.push(this.taylor(f_,initial_values,n,a,a+h*i,false));
         }
         return values;
+    },
+    diferencias_divididas :function(x,f,forward){
+        
     }
 };
