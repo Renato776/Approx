@@ -50,9 +50,9 @@ const Printing = {
     },
     print_table_title: function (text){
         let size = this.table_size;
-        this.printLog(fill_string(size,'-'));
-        this.format_title(size,text);
-        Printing.printLog(fill_string(size,'-'));
+        this.printLog(this.fill_string(size,'-'));
+        this.format_title(text);
+        Printing.printLog(this.fill_string(size,'-'));
     },
     print_object_list: function (table){
         if(table.length==0)return;
@@ -191,7 +191,7 @@ const Approx = {
         }
         return w[n];
     },
-    taylor:function(functions,alpha,n,a,b,debug = false){
+    taylor:function(functions,alpha,n,a,b,debug = false,get_all = false){
         function t(ti,wi){
             let ans = 0;
             for (let i = 1; i<functions.length+1;i++){
@@ -207,14 +207,119 @@ const Approx = {
             w[i+1] = w[i]+h*t(a+h*i,w[i]);
         }
         if(debug){
+            Printing.print_table_title("Taylor of "+functions.length+" order");
+            this.show_table(w);
+        }
+        if(get_all)return w;
+        else return w[n];
+    },
+    adams_moulton:function(f_,initial_values,n,a,b,steps,debug = false,default_config = true){
+        return this.adams_bashforth(f_,initial_values,n,a,b,steps,debug,default_config,true) ;
+    },
+    adams_bashforth:function(f_,initial_values,n,a,b,steps,debug = false,default_config = true,adams_moulton = false){
+        if(!Array.isArray(f_))f_ = [f_];
+        let f = f_[0];
+        let h = (b-a)/n;
+        let w = {a:a,h:h};
+        let t = {};
+        if(!Array.isArray(initial_values)){
+            //NO initial values where provided, this means we gotta take them from Taylor.
+            if(default_config){
+                let j = this.taylor([f],initial_values,n,a,b,false,true);
+                initial_values = new Array(steps);
+                for (let i = 0; i<steps;i++){
+                    initial_values[i] = j[i];
+                }
+            }
+            else initial_values = this.get_default_steps(steps,f_,initial_values,n,a,b);
+        }
+        for (let i = 0; i<initial_values.length;i++){
+            t[i] = a+h*i;
+            w[i] = initial_values[i];
+        }
+        switch (initial_values.length) {
+            case 2:{
+                for (let i = initial_values.length-1; i<n;i++){
+                    t[i] = a + h*i;
+                    if(adams_moulton){
+                        t[i+1] = a + h*(i+1);
+                        function equ (x){
+                            return w[i]+(h/12)*(
+                                5*f(t[i+1],x)+8*f(t[i],w[i])-f(t[i-1],w[i-1])
+                            )-x;
+                        }
+                        w[i+1] = this.bisect(w[i],100,equ);
+                    }else{
+                        w[i+1] = w[i] + (h/2)*
+                            (3*f(t[i],w[i])-f(t[i-1],w[i-1]));
+                    }
+                }
+            }break;
+            case 3:{
+                for (let i = initial_values.length-1; i<n;i++){
+                    t[i] = a + h*i;
+                    if(adams_moulton){
+                        t[i+1] = a + h*(i+1);
+                        function equ (x){
+                            return w[i]+(h/24)*(
+                                9*f(t[i+1],x)+19*f(t[i],w[i])-5*f(t[i-1],w[i-1])+f(t[i-2],w[i-2])
+                            )-x;
+                        }
+                        w[i+1] = this.bisect(w[i],100,equ);
+                    }else {
+                        w[i + 1] = w[i] + (h / 12) *
+                            (23 * f(t[i], w[i]) - 16 * f(t[i - 1], w[i - 1]) + 5 * f(t[i - 2], w[i - 2]));
+                    }
+                }
+            }break;
+            case 4:{
+                for (let i = initial_values.length-1; i<n;i++){
+                    t[i] = a + h*i;
+                    if(adams_moulton){
+                        t[i+1] = a + h*(i+1);
+                        function equ (x){
+                            return w[i]+(h/720)*(
+                                251*f(t[i+1],x)+646*f(t[i],w[i])-264*f(t[i-1],w[i-1])+106*f(t[i-2],w[i-2])-19*f(t[i-3],w[i-3])
+                            )-x;
+                        }
+                        w[i+1] = this.bisect(w[i],100,equ);
+                    }else{
+                        w[i + 1] = w[i] + (h / 24) *
+                            (55 * f(t[i], w[i]) - 59 * f(t[i - 1], w[i - 1]) + 37 * f(t[i - 2], w[i - 2]) - 9 * f(t[i - 3], w[i - 3]));
+                    }
+                }
+            }break;
+            case 5:{
+                for (let i = initial_values.length-1; i<n;i++){
+                    //Adams Moulton isn't defined for 5 steps.
+                    t[i] = a + h*i;
+                    w[i+1] = w[i] + (h/720)*
+                    (1901*f(t[i],w[i])-2774*f(t[i-1],w[i-1])+2616*f(t[i-2],w[i-2])-1274*f(t[i-3],w[i-3])+251*f(t[i-4],w[i-4]));
+                }
+            }break;
+        }
+        if(debug){
+            if(adams_moulton){
+                Printing.print_table_title("Adams Moulton of "+initial_values.length+" steps");
+            }else{
+                Printing.print_table_title("Adams Bashforth of "+initial_values.length+" steps");
+            }
             this.show_table(w);
         }
         return w[n];
+    },
+    get_default_steps: function(steps, f_, initial_values, n, a, b) {
+        let values = [initial_values];
+        let h = (b-a)/n;
+        for(let i = 1; i<steps;i++){
+            values.push(this.taylor(f_,initial_values,n,a,a+h*i));
+        }
+        return values;
     }
 };
 //region Function definition & its derivatives up to N - 1; where N is the order.
 function test(t,y){
-    return y - t*t + 1;
+    return 1+y/t;
 }
 function test1(t,y){
     return test(t,y) - 2*t;
@@ -226,4 +331,6 @@ function test3(t,y){
     return test2(t,y);
 }
 Printing.set_table_size(80);
-Approx.taylor([test,test1,test2,test3],0.5,10,0,2,true);
+Approx.taylor([test],2,5,1,2,true);
+Approx.adams_bashforth(test,2,5,1,2,4,true);
+Approx.adams_moulton(test,2,10,1,2,4, true,false);
