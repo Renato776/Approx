@@ -73,10 +73,10 @@ const Printing = {
         return s;
     },
     get_source:function(element){
-        return document.getElementById(element).value;
+        return editor.getValue();
     },
     printLog:function(text){
-        let s = this.get_source(this.output);
+        let s = document.getElementById(this.output).value;
         s+=text+"\n";
         this.set_text(s);
     },

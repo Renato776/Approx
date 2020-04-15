@@ -3,17 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Aproximacion Numerica</title>
+    <link rel=stylesheet href="lib/codemirror.css">
+    <link rel=stylesheet href="doc/docs.css">
+    <script src="lib/codemirror.js"></script>
+    <script src="mode/xml/xml.js"></script>
+    <script src="mode/javascript/javascript.js"></script>
+    <script src="mode/css/css.js"></script>
+    <script src="addon/edit/matchbrackets.js"></script>
 </head>
 <body>
 <h1>Aproximacion Numerica</h1>
-<textarea cols = "102" rows = "30" id = "source">
+<textarea id=source cols = "102" rows = "30">
     function test(t,y){
     return 1+y/t;
     }
-    Approx.taylor(test,2,5,1,2);
+    Approx.euler(test,2,0.2,1,2);
     Approx.adams_bashforth(test,2,5,1,2,4);
     Approx.adams_moulton(test,2,5,1,2,3);
 </textarea>
+<script>
+    let editor = CodeMirror.fromTextArea(document.getElementById("source"), {
+        lineNumbers: true,
+        mode: "text/javascript",
+        matchBrackets: true
+    });
+</script>
 <br>
 <button onclick="approximate()">Aproximar</button>
 <br>
