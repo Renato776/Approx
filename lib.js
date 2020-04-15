@@ -327,7 +327,131 @@ const Approx = {
         }
         return values;
     },
-    diferencias_divididas :function(x,f,forward){
-        
+    derivate:function(f,h,x0,instructions,debug = true){
+        if(x0==undefined)return NaN; //Nothing to do.
+        let ans = {x:[],y:[],dy:[],m:[]};
+        if(typeof f === 'object' && f !== null){
+            const data = f;
+            f = function (x0_){
+                   const d = data;
+                   let i = 0;
+                   while(i<d.x.length){
+                           if(d.x[i]==x0_)break;
+                           i++;
+                       }
+                  if(i==d.x.length)return NaN; //NOT defined for x.
+                   return d.y[i];
+            }
+        }
+        if(!isNaN(instructions)){
+            //Instructions tells me the length of the function array I'd like to evaluate.
+            //If it is negative it means it must go backward otherwise it goes forward.
+            //As for which method to use I'll have to decide myself.
+            let size = instructions;
+            instructions = [];
+            switch (size) {
+                case 2:
+                    instructions.push("diferencias divididas|adelante");
+                    instructions.push("diferencias divididas|atras");
+                    break;
+                case 3:
+                    instructions.push("3 puntos|adelante");
+                    instructions.push("3 puntos|centrada");
+                    instructions.push("3 puntos|atras");
+                    break;
+                case 4:
+                    instructions.push("3 puntos|adelante");
+                    instructions.push("3 puntos|adelante");
+                    instructions.push("3 puntos|atras");
+                    instructions.push("3 puntos|atras");
+                    break;
+                case 5:
+                    instructions.push("5 puntos|adelante");
+                    instructions.push("3 puntos|adelante");
+                    instructions.push("5 puntos|centrada");
+                    instructions.push("3 puntos|atras");
+                    instructions.push("5 puntos|atras");
+                    break;
+                default:
+                    for (let i = 0; i<size; i++){
+                        if(i+5<=size)instructions.push("5 puntos|adelante");
+                        else if(i-5>=0)instructions.push("5 puntos|atras");
+                        else instructions.push("3 puntos|atras");
+                    }
+            }
+        }
+        if(Array.isArray(instructions)){
+            //Alright, the instructions tells me explicitely which methods to use to approximate the derivative of f.
+            for (let i = 0; i<instructions.length;i++){
+                let ins = instructions[i];
+                ins = ins.split('|');
+                let method = ins[0].trim().toLowerCase();
+                let direction = "adelante";
+                if(ins.length>1){
+                    direction = ins[1].trim().toLowerCase();
+                }
+                ans = this.register_derivative(ans,f,x0+i*h,Math.abs(h),method,direction);
+            }
+        }
+        this.show_derivative(ans);
+        return ans.dy;
+    },
+    show_derivative:function(data){
+        Printing.print_table_title("Derivative Approximation");
+        Printing.print_object_header(data);
+        for (let i = 0; i<data.x.length;i++){
+            Printing.format_row([data.x[i].toString(),data.y[i].toString(),data.dy[i].toString(),data.m[i]]);
+        }
+    },
+    spread:function(value,len){
+        let arr = [];
+        for (let i = 0; i < len; i++) {
+            arr.push(value);
+        }
+        return arr;
+    },
+    diferencias_divididas :function(x,f,h,forward= true){
+        if(forward){
+            return (f(x+h)-f(x))/h;
+        }else{
+            return (f(x)-f(x-h))/h;
+        }
+    },
+    three_points:function(x,f,h,direction){
+        switch (direction) {
+            case "atras":
+                return (1/(2*h))*(f(x-2*h)-4*f(x-h)+3*f(x));
+            case "centrada":
+                return (1/(2*h))*(-f(x-h)+f(x+h));
+            default: //Default is considered forward.
+                return (1/(2*h))*(-3*f(x)+4*f(x+h)-f(x+2*h));
+        }
+    },
+    five_points :function(x,f,h,direction){
+        switch (direction) {
+            case "centrada":
+                return (1/(12*h))*(f(x-2*h)-8*f(x-h)+8*f(x+h)-f(x+2*h));
+            case "atras":
+                h = - h;
+            default:
+                return (1/(12*h))*(-25*f(x)+48*f(x+h)-36*f(x+2*h)+16*f(x+3*h)-3*f(x+4*h));
+        }
+    },
+    register_derivative:function(ans, f, x,h, method, direction) {
+        ans.m.push(method + " | "+direction);
+        ans.x.push(x);
+        ans.y.push(f(x));
+        switch (method) {
+            case "diferencias dividas":
+                ans.dy.push(this.diferencias_divididas(x,f,h,direction=="adelante"));
+                break;
+            case "3 puntos":
+                ans.dy.push(this.three_points(x,f,h,direction));
+                break;
+            case "5 puntos":
+                ans.dy.push(this.five_points(x,f,h,direction));
+                break;
+        }
+        return ans;
     }
 };
