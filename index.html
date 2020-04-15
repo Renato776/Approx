@@ -12,10 +12,11 @@
 <body>
 <h1>Aproximacion Numerica</h1>
 <textarea id=source cols = "102" rows = "30">
+    //Ejemplo:
     function test(t,y){return 1+y/t;}
-	function test1(t,y){return (t*test(t,y)-y)/(t*t);}
-	function test2(t,y){return (Math.pow(t,2)*t*test1(t,y)-2*t*(t*test(t,y)-y))/Math.pow(t,4);}
-	Approx.taylor([test,test1,test2],2,10,1,2);
+	function d1_test(t,y){return (t*test(t,y)-y)/(t*t);}
+	function d2_test(t,y){return (Math.pow(t,2)*t*d1_test(t,y)-2*t*(t*test(t,y)-y))/Math.pow(t,4);}
+	Approx.taylor([test,d1_test,d2_test],2,10,1,2);
 	Approx.adams_bashforth(test,2,5,1,2,4);
 	Approx.adams_moulton(test,2,10,1,2,3);
 </textarea>
