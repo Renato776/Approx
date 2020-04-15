@@ -327,6 +327,9 @@ const Approx = {
         }
         return values;
     },
+    truncate : function(number,exactness){
+    return Number(number.toFixed(exactness));
+    },
     derivate:function(f,h,x0,instructions,debug = true){
         if(x0==undefined)return NaN; //Nothing to do.
         let ans = {x:[],y:[],dy:[],m:[]};
@@ -336,7 +339,15 @@ const Approx = {
                    const d = data;
                    let i = 0;
                    while(i<d.x.length){
-                           if(d.x[i]==x0_)break;
+                       let ex = h.toString().split('.');
+                       if(ex.length==1)ex = 0;
+                       else {
+                           let extra;
+                           if(isNaN(instructions))extra = instructions.length;
+                           else extra = instructions;
+                           ex = ex[1].length+extra.toString().length-1;
+                       }
+                           if(Approx.truncate(d.x[i],ex)==Approx.truncate(x0_,ex))break;
                            i++;
                        }
                   if(i==d.x.length)return NaN; //NOT defined for x.
@@ -442,7 +453,7 @@ const Approx = {
         ans.x.push(x);
         ans.y.push(f(x));
         switch (method) {
-            case "diferencias dividas":
+            case "diferencias divididas":
                 ans.dy.push(this.diferencias_divididas(x,f,h,direction=="adelante"));
                 break;
             case "3 puntos":
@@ -450,6 +461,9 @@ const Approx = {
                 break;
             case "5 puntos":
                 ans.dy.push(this.five_points(x,f,h,direction));
+                break;
+            default:
+                ans.dy.push(NaN);
                 break;
         }
         return ans;
