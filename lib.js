@@ -85,7 +85,25 @@ const Printing = {
     }
 };
 const Approx = {
-    exactness:Math.pow(10,-6),
+    configuration:{
+        bisect:{
+            gap:100,
+            exactness:Math.pow(10,-6),
+            MAX_INTENTS_LEFT:3000,
+            MAX_PROBE_INTENTS:10000,
+            MAX_INTENTS: 50000,
+            debug:false
+        },
+        euler:{
+            debug:true
+        },
+        derive:{
+            n:25,
+            steps:3,
+            root_method:Approx.bisect,
+            debug:false
+        }
+    },
     invalid:function(x){
         return isNaN(x)||x == Infinity||x == - Infinity;
     },
@@ -103,8 +121,8 @@ const Approx = {
             Printing.format_row([(a+i*h).toString(),data[i].toString()]);
         }
     },
-    bisect:function(x0,gap,equation,debug = false){
-        let MAX_INTENTS = 3000;
+    bisect:function(equation,x0,gap= this.configuration.bisect.gap,debug = this.configuration.bisect.debug){
+        let MAX_INTENTS = this.configuration.bisect.MAX_INTENTS_LEFT;
         let FATAL_FAILURE = 0;
         let a = x0;
         let y0 = equation(x0);
@@ -114,14 +132,14 @@ const Approx = {
             FATAL_FAILURE++;
         }
         if(FATAL_FAILURE==MAX_INTENTS){
-            if(debug)Printing.printLog(this.express_interval(a,x0));
+            if(debug)Printing.printLog("Your function is not defined on the extremes of interval: "+this.express_interval(a,x0));
             return NaN;
         }
         if(y0==0)return a;
         let b;
         let y1;
         FATAL_FAILURE = 0;
-        MAX_INTENTS = 10000;
+        MAX_INTENTS = this.configuration.bisect.MAX_PROBE_INTENTS;
         b = a - gap;  //We'll start looking for any root at the left of a.
         y1 = equation(b);
         while(!this.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
@@ -131,7 +149,7 @@ const Approx = {
         }
         if(FATAL_FAILURE==MAX_INTENTS){ //NO root found at the left of a. Let's search at the right.
             FATAL_FAILURE = 0;
-            MAX_INTENTS = 10000;
+            MAX_INTENTS = this.configuration.bisect.MAX_PROBE_INTENTS;
             b = a + gap;
             y1 = equation(b);
             while(!this.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
@@ -145,13 +163,13 @@ const Approx = {
             return NaN;
         }
         FATAL_FAILURE = 0;
-        MAX_INTENTS = 50000;
+        MAX_INTENTS = this.configuration.bisect.MAX_INTENTS;
         let f_a = equation(a);
         let f_b = equation(b);
         let x = (a+b)/2; //initial guess.
         let f_x = equation(x);
         let error  = 1;
-        while ((!(f_x==0 || error<this.exactness ))&&FATAL_FAILURE!=MAX_INTENTS){
+        while ((!(f_x==0 || error<this.configuration.bisect.exactness ))&&FATAL_FAILURE!=MAX_INTENTS){
             if(this.sign_change(f_x,f_a)){
                 b = x;
             }else{
@@ -188,7 +206,7 @@ const Approx = {
         if(a>0 && b>0) return false;
         return true;
     },
-    euler:function(f,alpha,h,a,b,debug = true){
+    euler:function(f,alpha,h,a,b,debug = this.configuration.euler.debug){
         let n = Math.floor((b - a)/h);
         let w = {a:a,h:h};
         w[0] = alpha;
@@ -227,6 +245,12 @@ const Approx = {
     adams_moulton:function(f_,initial_values,n,a,b,steps,debug = true,default_config = true){
         return this.adams_bashforth(f_,initial_values,n,a,b,steps,debug,default_config,true) ;
     },
+    derive:function(f_,initial_values,a,b){
+        if(!Array.isArray(f_))f_ = [f_];
+        if(!Array.isArray(initial_values))initial_values = this.get_default_steps(this.configuration.derive.steps,f_,initial_values,this.configuration.derive.n,a,b);
+        let ans = this.adams_moulton(f_,initial_values,this.configuration.derive.n,a,b,this.configuration.derive.steps,this.configuration.derive.debug,false);
+        return ans[this.configuration.derive.n];
+    },
     adams_bashforth:function(f_,initial_values,n,a,b,steps,debug = true,default_config = true,adams_moulton = false){
         if(!Array.isArray(f_))f_ = [f_];
         let f = f_[0];
@@ -259,7 +283,7 @@ const Approx = {
                                 5*f(t[i+1],x)+8*f(t[i],w[i])-f(t[i-1],w[i-1])
                             )-x;
                         }
-                        w[i+1] = this.bisect(w[i],100,equ);
+                        w[i+1] = this.configuration.derive.root_method(equ,w[i]);
                     }else{
                         w[i+1] = w[i] + (h/2)*
                             (3*f(t[i],w[i])-f(t[i-1],w[i-1]));
@@ -276,7 +300,7 @@ const Approx = {
                                 9*f(t[i+1],x)+19*f(t[i],w[i])-5*f(t[i-1],w[i-1])+f(t[i-2],w[i-2])
                             )-x;
                         }
-                        w[i+1] = this.bisect(w[i],100,equ);
+                        w[i+1] = this.configuration.derive.root_method(equ,w[i]);
                     }else {
                         w[i + 1] = w[i] + (h / 12) *
                             (23 * f(t[i], w[i]) - 16 * f(t[i - 1], w[i - 1]) + 5 * f(t[i - 2], w[i - 2]));
@@ -293,7 +317,7 @@ const Approx = {
                                 251*f(t[i+1],x)+646*f(t[i],w[i])-264*f(t[i-1],w[i-1])+106*f(t[i-2],w[i-2])-19*f(t[i-3],w[i-3])
                             )-x;
                         }
-                        w[i+1] = this.bisect(w[i],100,equ);
+                        w[i+1] = this.configuration.derive.root_method(equ,w[i])
                     }else{
                         w[i + 1] = w[i] + (h / 24) *
                             (55 * f(t[i], w[i]) - 59 * f(t[i - 1], w[i - 1]) + 37 * f(t[i - 2], w[i - 2]) - 9 * f(t[i - 3], w[i - 3]));
