@@ -491,6 +491,50 @@ const Approx = {
                 break;
         }
         return ans;
+    },
+    utility:{
+        multiply_arrays :function(arr1,arr2){
+            let ans = [];
+            for (let i = 0; i<arr1.length;i++){
+                ans.push(arr1[i]*arr2[i]);
+            }
+            return ans;
+        },
+        sum_arrays :function(arr1,arr2){
+            let ans = [];
+            for (let i = 0; i<arr1.length;i++){
+                ans.push(arr1[i]+arr2[i]);
+            }
+            return ans;
+        },
+        subtract_arrays :function(arr1,arr2){
+            let ans = [];
+            for (let i = 0; i<arr1.length;i++){
+                ans.push(arr1[i]-arr2[i]);
+            }
+            return ans;
+        },
+        geometric_spread :function(seed,j,length){
+            let ans = [];
+            for (let i = 0; i<length;i++){
+                ans.push(seed*Math.pow(1+j,i));
+            }
+            return ans;
+        },
+        linear_spread :function(seed,rate,length){
+            let ans = [];
+            for (let i = 0; i<length;i++){
+                ans.push(seed+rate*i);
+            }
+            return ans;
+        },
+        sum:function (arr) {
+            let ans = 0;
+            for (let i = 0; i <arr.length; i++){
+                ans+=arr[i];
+            }
+            return ans;
+        }
     }
 };
 Approx.configuration.differential.root_method = Approx.bisect;
