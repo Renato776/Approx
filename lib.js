@@ -97,10 +97,10 @@ const Approx = {
         euler:{
             debug:true
         },
-        derive:{
+        differential:{
             n:25,
             steps:3,
-            root_method:Approx.bisect,
+            root_method: null,
             debug:false
         }
     },
@@ -121,56 +121,56 @@ const Approx = {
             Printing.format_row([(a+i*h).toString(),data[i].toString()]);
         }
     },
-    bisect:function(equation,x0,gap= this.configuration.bisect.gap,debug = this.configuration.bisect.debug){
-        let MAX_INTENTS = this.configuration.bisect.MAX_INTENTS_LEFT;
+    bisect:function(equation,x0,gap= Approx.configuration.bisect.gap,debug = Approx.configuration.bisect.debug){
+        let MAX_INTENTS = Approx.configuration.bisect.MAX_INTENTS_LEFT;
         let FATAL_FAILURE = 0;
         let a = x0;
         let y0 = equation(x0);
-        while(this.invalid(y0)&&(FATAL_FAILURE!=MAX_INTENTS)){
+        while(Approx.invalid(y0)&&(FATAL_FAILURE!=MAX_INTENTS)){
             a -= gap;
             y0 = equation(a);
             FATAL_FAILURE++;
         }
         if(FATAL_FAILURE==MAX_INTENTS){
-            if(debug)Printing.printLog("Your function is not defined on the extremes of interval: "+this.express_interval(a,x0));
+            if(debug)Printing.printLog("Your function is not defined on the extremes of interval: "+Approx.express_interval(a,x0));
             return NaN;
         }
         if(y0==0)return a;
         let b;
         let y1;
         FATAL_FAILURE = 0;
-        MAX_INTENTS = this.configuration.bisect.MAX_PROBE_INTENTS;
+        MAX_INTENTS = Approx.configuration.bisect.MAX_PROBE_INTENTS;
         b = a - gap;  //We'll start looking for any root at the left of a.
         y1 = equation(b);
-        while(!this.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
+        while(!Approx.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
             b -= gap;
             y1 = equation(b);
             FATAL_FAILURE++;
         }
         if(FATAL_FAILURE==MAX_INTENTS){ //NO root found at the left of a. Let's search at the right.
             FATAL_FAILURE = 0;
-            MAX_INTENTS = this.configuration.bisect.MAX_PROBE_INTENTS;
+            MAX_INTENTS = Approx.configuration.bisect.MAX_PROBE_INTENTS;
             b = a + gap;
             y1 = equation(b);
-            while(!this.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
+            while(!Approx.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
                 b += gap;
                 y1 = equation(b);
                 FATAL_FAILURE++;
             }
         }
         if(FATAL_FAILURE==MAX_INTENTS){
-            if(debug)Printing.errorLog("NO root found anywhere within "+this.express_interval(a - gap*MAX_INTENTS,a+gap*MAX_INTENTS))
+            if(debug)Printing.errorLog("NO root found anywhere within "+Approx.express_interval(a - gap*MAX_INTENTS,a+gap*MAX_INTENTS))
             return NaN;
         }
         FATAL_FAILURE = 0;
-        MAX_INTENTS = this.configuration.bisect.MAX_INTENTS;
+        MAX_INTENTS = Approx.configuration.bisect.MAX_INTENTS;
         let f_a = equation(a);
         let f_b = equation(b);
         let x = (a+b)/2; //initial guess.
         let f_x = equation(x);
         let error  = 1;
-        while ((!(f_x==0 || error<this.configuration.bisect.exactness ))&&FATAL_FAILURE!=MAX_INTENTS){
-            if(this.sign_change(f_x,f_a)){
+        while ((!(f_x==0 || error<Approx.configuration.bisect.exactness ))&&FATAL_FAILURE!=MAX_INTENTS){
+            if(Approx.sign_change(f_x,f_a)){
                 b = x;
             }else{
                 a = x;
@@ -283,7 +283,7 @@ const Approx = {
                                 5*f(t[i+1],x)+8*f(t[i],w[i])-f(t[i-1],w[i-1])
                             )-x;
                         }
-                        w[i+1] = this.configuration.derive.root_method(equ,w[i]);
+                        w[i+1] = this.configuration.differential.root_method(equ,w[i]);
                     }else{
                         w[i+1] = w[i] + (h/2)*
                             (3*f(t[i],w[i])-f(t[i-1],w[i-1]));
@@ -300,7 +300,7 @@ const Approx = {
                                 9*f(t[i+1],x)+19*f(t[i],w[i])-5*f(t[i-1],w[i-1])+f(t[i-2],w[i-2])
                             )-x;
                         }
-                        w[i+1] = this.configuration.derive.root_method(equ,w[i]);
+                        w[i+1] = this.configuration.differential.root_method(equ,w[i]);
                     }else {
                         w[i + 1] = w[i] + (h / 12) *
                             (23 * f(t[i], w[i]) - 16 * f(t[i - 1], w[i - 1]) + 5 * f(t[i - 2], w[i - 2]));
@@ -317,7 +317,7 @@ const Approx = {
                                 251*f(t[i+1],x)+646*f(t[i],w[i])-264*f(t[i-1],w[i-1])+106*f(t[i-2],w[i-2])-19*f(t[i-3],w[i-3])
                             )-x;
                         }
-                        w[i+1] = this.configuration.derive.root_method(equ,w[i])
+                        w[i+1] = this.configuration.differential.root_method(equ,w[i])
                     }else{
                         w[i + 1] = w[i] + (h / 24) *
                             (55 * f(t[i], w[i]) - 59 * f(t[i - 1], w[i - 1]) + 37 * f(t[i - 2], w[i - 2]) - 9 * f(t[i - 3], w[i - 3]));
@@ -493,3 +493,4 @@ const Approx = {
         return ans;
     }
 };
+Approx.configuration.differential.root_method = Approx.bisect;
