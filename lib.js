@@ -28,6 +28,7 @@ const Printing = {
     },
     format_row: function (row){
         let size = this.table_size;
+		if(!size) size = 500;
         let formatted_row = "";
         for (let i =0; i<row.length;i++){
             let entry = row[i];
@@ -46,11 +47,14 @@ const Printing = {
     },
     print_object_body: function (object){
         let size = this.table_size;
+		const r = this.table_size;
         let entry_row = [];
         for (let j = 0; j<Object.keys(object).length;j++){
+			if(Array.isArray(object[Object.keys(object)[j]]))this.table_size = undefined;
             entry_row.push(object[Object.keys(object)[j]].toString());
         }
         this.format_row(entry_row,size);
+		this.table_size = r;
     },
     print_table_title: function (text){
         let size = this.table_size;
@@ -188,6 +192,68 @@ const Approx = {
         if(a>0 && b>0) return false;
         return true;
     },
+	"Runge-Kutta para sistemas":function(functions,initials,a,b,n,debug = false){
+		/*Implementacion del metodo de Runge Kutta de 4 pasos para sistemas de ecuaciones diferenciales*/
+		const entry = function(t,ws){
+			this["t"] = t;
+			for(let i = 0; i<ws.length; i++){
+				this["w"+(i+1)] = ws[i];
+			}
+			return this;
+		};
+		const h = (b-a)/n;
+		const table = [];
+		const k = [];
+		let w = [initials];
+		for(let j  = 1; j<n+2; j++){
+			const t = a + h*(j-1);
+			let ws = [];
+			let k_ = {1:[],2:[],3:[],4:[]};
+			for(let i = 0; i<initials.length;i++){
+				const k__ = h*functions[i](t,...w[j-1]);
+				k_[1].push(k__);
+			}
+			for(let i = 0; i<initials.length;i++){
+				let v = [];
+				for(let z = 0; z<initials.length; z++){
+					v.push(w[j-1][z]+(1/2)*k_[1][z]);
+				}
+				const k__ = h*functions[i](t+h/2,...v);
+				k_[2].push(k__);
+			}
+			for(let i = 0; i<initials.length;i++){
+				let v = [];
+				for(let z = 0; z<initials.length; z++){
+					v.push(w[j-1][z]+(1/2)*k_[2][z]);
+				}
+				const k__ = h*functions[i](t+h/2,...v);
+				k_[3].push(k__);
+			}
+			
+			for(let i = 0; i<initials.length;i++){
+				let v = [];
+				for(let z = 0; z<initials.length; z++){
+					v.push(w[j-1][z]+k_[3][z]);
+				}
+				const k__ = h*functions[i](t+h,...v);
+				k_[4].push(k__);
+			}
+			for(let i = 0; i<initials.length;i++){
+				let wij = w[j-1][i]+(1/6)*(k_[1][i]+2*k_[2][i]+2*k_[3][i]+k_[4][i]);
+				ws.push(wij);
+			}	
+			w.push(ws);
+			k.push(k_);
+			table.push(new entry(t,ws));
+		}
+		Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
+		if(debug){
+			Printing.print_table_title("Procedimiento: K(s):");
+			Printing.print_object_list(k);
+		}
+			Printing.print_table_title("Resultado:");
+		Printing.print_object_list(table);
+	},
     euler:function(f,alpha,h,a,b,debug = true){
         let n = Math.floor((b - a)/h);
         let w = {a:a,h:h};
