@@ -251,8 +251,9 @@ const Approx = {
 			Printing.print_table_title("Procedimiento: K(s):");
 			Printing.print_object_list(k);
 		}
-			Printing.print_table_title("Resultado:");
+		Printing.print_table_title("Resultado:");
 		Printing.print_object_list(table);
+		return table[table.length-1];
 	},
     euler:function(f,alpha,h,a,b,debug = true){
         let n = Math.floor((b - a)/h);
