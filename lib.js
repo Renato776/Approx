@@ -37,7 +37,16 @@ const Printing = {
         }
         this.printLog(formatted_row);
     },
-    print_object_header: function (object){
+    print_object_header: function (object,csv = false){
+        if(csv){
+            let head = '';
+            for	(let k = 0; k<Object.keys(object).length;k++){
+                head+=Object.keys(object)[k]+',';
+                head = head.substring(0,head.length-1);
+            }
+            Printing.printLog(head);
+            return;
+        }
         let size = this.table_size;
         let header = [];
         for	(let k = 0; k<Object.keys(object).length;k++){
@@ -45,7 +54,16 @@ const Printing = {
         }
         this.format_row(header,size);
     },
-    print_object_body: function (object){
+    print_object_body: function (object,csv = false){
+        if(csv){
+            let values = '';
+            for (let j = 0; j<Object.keys(object).length;j++){
+                values+= (object[Object.keys(object)[j]].toString())+',';
+                values = values.substring(0,values.length-1);
+            }
+            Printing.printLog(values);
+            return;
+        }
         let size = this.table_size;
 		const r = this.table_size;
         let entry_row = [];
@@ -62,11 +80,11 @@ const Printing = {
         this.format_title(text);
         Printing.printLog(this.fill_string(size,'-'));
     },
-    print_object_list: function (table){
+    print_object_list: function (table,csv = false){
         if(table.length==0)return;
-        this.print_object_header(table[0]);
+        this.print_object_header(table[0],csv);
         for (let i = 0; i<table.length; i ++){
-            this.print_object_body(table[i]);
+            this.print_object_body(table[i],csv);
         }
     },
     fill_string : function (size,content) {
@@ -249,10 +267,10 @@ const Approx = {
 		Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
 		if(debug){
 			Printing.print_table_title("Procedimiento: K(s):");
-			Printing.print_object_list(k);
+			Printing.print_object_list(k,true);
 		}
 		Printing.print_table_title("Resultado:");
-		Printing.print_object_list(table);
+		Printing.print_object_list(table,true);
 		return table[table.length-1];
 	},
     euler:function(f,alpha,h,a,b,debug = true){
