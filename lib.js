@@ -230,6 +230,7 @@ const Approx = {
         if(a>0 && b>0) return false;
         return true;
     },
+    get_true_solution:false,
     "disparo lineal":function (functions,initials,a,b,n,partial_solution,exactness=Math.pow(10,-5),gap=undefined) {
             /*This method is similar to Runge kutta except, it
             * verifies the solution for b(y) is as close as possible to partial_solution.
@@ -258,14 +259,17 @@ const Approx = {
             Approx.exactness = exactness;
             let sol = Approx.bisect(initial_guess,gap,exact,false);
             Approx.exactness = og;
-            Printing.printLog('Correct initial value: '+sol);
-            Printing.printLog('Correct solution to the system:');
-            const true_solution = Approx["Runge-Kutta para sistemas"](functions,[sol,y],a,b,n,true);
-            Printing.separate('*');
-            Printing.printLog('For showcase purposes:');
+            if(this.get_true_solution){
+                Printing.printLog('Correct initial value: '+sol);
+                Printing.printLog('Correct solution to the system:');
+            }
+            const true_solution = Approx["Runge-Kutta para sistemas"](functions,[sol,y],a,b,n);
+            if(this.get_true_solution){
+                Printing.separate('*');
+                Printing.printLog('Solucion aproximada:');
+            }
             const x1 = Math.floor(sol-1);
             const x2 = Math.floor(sol+1);
-            Printing.separate('-');
             Printing.printLog(`x1 = ${x1}\nSystem solution for x1:`);
             const y1 = Approx["Runge-Kutta para sistemas"](functions,[x1,y],a,b,n,true)["w2"];
             Printing.separate('-');
@@ -285,7 +289,7 @@ recta: y = ${m}*x+${k}
 Sustituyendo: ${partial_solution} = ${m}*x+${k}
 Se obtiene: x = (${partial_solution} - ${k})/${m}
 x = ${linear_solution}
-Linear solution to the sistem:`);
+Linear solution to the system:`);
             Approx["Runge-Kutta para sistemas"](functions,[linear_solution,y],a,b,n,true);
     },
 	"Runge-Kutta para sistemas":function(functions,initials,a,b,n,debug = false,extra_debug = false){
