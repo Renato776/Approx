@@ -277,7 +277,7 @@ const Approx = {
 			}	
 			w.push(ws);
 			k.push(new k_display(k_));
-			table.push(new entry(t+1,ws));
+			table.push(new entry(t+h,ws));
 		}
 		Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
 		if(debug){
