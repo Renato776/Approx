@@ -219,10 +219,10 @@ const Approx = {
 			return this;
 		};
 		const h = (b-a)/n;
-		const table = [];
+		const table = [new entry(a,initials)];
 		const k = [];
 		let w = [initials];
-		for(let j  = 1; j<n+2; j++){
+		for(let j  = 1; j<n+1; j++){
 			const t = a + h*(j-1);
 			let ws = [];
 			let k_ = {1:[],2:[],3:[],4:[]};
@@ -261,7 +261,7 @@ const Approx = {
 			}	
 			w.push(ws);
 			k.push(k_);
-			table.push(new entry(t,ws));
+			table.push(new entry(t+1,ws));
 		}
 		Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
 		if(debug){
