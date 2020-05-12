@@ -211,6 +211,22 @@ const Approx = {
     },
 	"Runge-Kutta para sistemas":function(functions,initials,a,b,n,debug = false){
 		/*Implementacion del metodo de Runge Kutta de 4 pasos para sistemas de ecuaciones diferenciales*/
+        const k_display = function(k){
+            //k = index 1,2,3,4. k[index] = array (). Transform key into: "index_1, index_2 ... index_length"
+            let ans = {};
+            let keys = Object.keys(k);
+            for (let i = 0; i<keys.length; i++){
+                let key = keys[i];
+                let values = k[key];
+                let new_key = '';
+                for (let j = 0; j<values.length;j++){
+                    new_key+='k_'+key+'_'+(j+1)+',';
+                }
+                new_key = new_key.substring(0,new_key.length-1); //We dispose from the last comma.
+                ans[new_key] = values;
+            }
+            return ans;
+        };
 		const entry = function(t,ws){
 			this["t"] = t;
 			for(let i = 0; i<ws.length; i++){
@@ -260,7 +276,7 @@ const Approx = {
 				ws.push(wij);
 			}	
 			w.push(ws);
-			k.push(k_);
+			k.push(new k_display(k_));
 			table.push(new entry(t+1,ws));
 		}
 		Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
