@@ -42,8 +42,8 @@ const Printing = {
             let head = '';
             for	(let k = 0; k<Object.keys(object).length;k++){
                 head+=Object.keys(object)[k]+',';
-                head = head.substring(0,head.length-1);
             }
+            head = head.substring(0,head.length-1);
             Printing.printLog(head);
             return;
         }
@@ -59,8 +59,7 @@ const Printing = {
             let values = '';
             for (let j = 0; j<Object.keys(object).length;j++){
                 values+= (object[Object.keys(object)[j]].toString())+',';
-                values = values.substring(0,values.length-1);
-            }
+            } values = values.substring(0,values.length-1);
             Printing.printLog(values);
             return;
         }
