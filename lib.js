@@ -1,6 +1,7 @@
 const Printing = {
     table_size:100,
     output: "output",
+    csv:true,
     set_text:function(text){
         document.getElementById(this.output).value = text;
     },
@@ -8,6 +9,7 @@ const Printing = {
         this.table_size = size;
     },
     format_cell: function (cell_width,entry){
+        if(this.csv)return entry;
         cell_width = cell_width-2;
         let formatted_entry = "|";
         if(entry.length==cell_width){
@@ -103,6 +105,9 @@ const Printing = {
     },
     errorLog:function (error_) {
         this.printLog("FATAL ERROR: "+error_);
+    },
+    separate(s) {
+        this.printLog(this.fill_string(this.table_size,s));
     }
 };
 const Approx = {
@@ -209,7 +214,65 @@ const Approx = {
         if(a>0 && b>0) return false;
         return true;
     },
-	"Runge-Kutta para sistemas":function(functions,initials,a,b,n,debug = false){
+    "disparo lineal":function (functions,initials,a,b,n,partial_solution,exactness=Math.pow(10,-5),gap=undefined) {
+            /*This method is similar to Runge kutta except, it
+            * verifies the solution for b(y) is as close as possible to partial_solution.
+            * I could theorically generalize for n partial solutions and try to
+            * approx each, this could be useful for order n systems. However, I don't
+            * really have time to implement such rn.
+            * Also, I could theorically call bisection on this problem and
+            * obtain a really exact approximation. However, for procedure
+            * purposes the user can select how long each gap to perform should be.
+            * Also, initials[0] is any arbitrary value by the user.
+            * Also, make sure to send functions IN ORDER. as:
+            * x',y'
+            * Initial solutions must in the same order as well such that:
+            * y''(initial) = unknown = x'(initial) must be the first. arbitrary to begin the method.
+            * y'(initial) = known given by the problem.
+            * partial_solution = second point within y'.
+            * */
+            if(!gap)gap = 1;
+            const y = initials[1];
+            const initial_guess = initials[0];
+            function exact(x){
+                let entry = Approx["Runge-Kutta para sistemas"](functions,[x,y],a,b,n);
+                return entry["w2"]-partial_solution;
+            }
+            let og = Approx.exactness;
+            Approx.exactness = exactness;
+            let sol = Approx.bisect(initial_guess,gap,exact,false);
+            Approx.exactness = og;
+            Printing.printLog('Correct initial value: '+sol);
+            Printing.printLog('Correct solution to the system:');
+            const true_solution = Approx["Runge-Kutta para sistemas"](functions,[sol,y],a,b,n,true);
+            Printing.separate('*');
+            Printing.printLog('For showcase purposes:');
+            const x1 = Math.floor(sol-1);
+            const x2 = Math.floor(sol+1);
+            Printing.separate('-');
+            Printing.printLog(`x1 = ${x1}\nSystem solution for x1:`);
+            const y1 = Approx["Runge-Kutta para sistemas"](functions,[x1,y],a,b,n,true)["w2"];
+            Printing.separate('-');
+            Printing.printLog(`x2 = ${x2}\nSystem solution for x2:`);
+            const y2 = Approx["Runge-Kutta para sistemas"](functions,[x2,y],a,b,n,true)["w2"];
+            const m = (y2-y1)/(x2-x1);
+            const k = y1 -m*x1;
+            const linear_solution = (partial_solution-k)/m;
+            Printing.separate('-');
+            Printing.printLog(`
+Resumen:
+x1 = ${x1}
+x2 = ${x2}
+y1 = ${y1}
+y2 = ${y2}
+recta: y = ${m}*x+${k}
+Sustituyendo: ${partial_solution} = ${m}*x+${k}
+Se obtiene: x = (${partial_solution} - ${k})/${m}
+x = ${linear_solution}
+Linear solution to the sistem:`);
+            Approx["Runge-Kutta para sistemas"](functions,[linear_solution,y],a,b,n,true);
+    },
+	"Runge-Kutta para sistemas":function(functions,initials,a,b,n,debug = false,extra_debug = false){
 		/*Implementacion del metodo de Runge Kutta de 4 pasos para sistemas de ecuaciones diferenciales*/
         const k_display = function(k){
             //k = index 1,2,3,4. k[index] = array (). Transform key into: "index_1, index_2 ... index_length"
@@ -279,13 +342,15 @@ const Approx = {
 			k.push(new k_display(k_));
 			table.push(new entry(t+h,ws));
 		}
-		Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
 		if(debug){
-			Printing.print_table_title("Procedimiento: K(s):");
-			Printing.print_object_list(k,true);
+            Printing.print_table_title("Runge Kutta para Sistemas de 4 pasos.");
+			if(extra_debug){
+                Printing.print_table_title("Procedimiento: K(s):");
+                Printing.print_object_list(k,true);
+            }
+            Printing.print_table_title("Resultado:");
+            Printing.print_object_list(table,true);
 		}
-		Printing.print_table_title("Resultado:");
-		Printing.print_object_list(table,true);
 		return table[table.length-1];
 	},
     euler:function(f,alpha,h,a,b,debug = true){
