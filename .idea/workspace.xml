@@ -21,8 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="16c4e97c-0fd5-4e9c-a109-ad5347a3377c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/debug.log" beforeDir="false" afterPath="$PROJECT_DIR$/debug.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +49,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.3" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../AllieSell-Server/Client" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -81,7 +79,7 @@
       <workItem from="1586963145927" duration="15340000" />
       <workItem from="1589119498803" duration="1089000" />
       <workItem from="1589203663117" duration="23000" />
-      <workItem from="1589298439037" duration="8480000" />
+      <workItem from="1589298439037" duration="8872000" />
     </task>
     <servers />
   </component>
@@ -107,10 +105,10 @@
     </state>
     <state x="94" y="149" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.984@0.0.1280.984" timestamp="1586906075291" />
     <state x="0" y="27" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.27.800.573@0.27.800.573" timestamp="1586716949491" />
-    <state x="293" y="76" width="424" height="491" key="FileChooserDialogImpl" timestamp="1589203685402">
+    <state x="293" y="76" width="424" height="491" key="FileChooserDialogImpl" timestamp="1589307651307">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="293" y="76" key="FileChooserDialogImpl/0.0.1280.984@0.0.1280.984" timestamp="1589203685402" />
+    <state x="293" y="76" key="FileChooserDialogImpl/0.0.1280.984@0.0.1280.984" timestamp="1589307651307" />
     <state x="183" y="71" width="424" height="491" key="FileChooserDialogImpl/0.27.800.573@0.27.800.573" timestamp="1586716945074" />
     <state width="776" height="116" key="GridCell.Tab.0.bottom" timestamp="1586935975379">
       <screen x="0" y="27" width="800" height="573" />
