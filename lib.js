@@ -1,6 +1,13 @@
 const Printing = {
     table_size:100,
     output: "output",
+    save_csv:function(){
+        const text = document.getElementById(this.output).value;
+        const data = new Blob([text], {type: 'text/csv'});
+        const url = window.URL.createObjectURL(data);
+        document.getElementById('download_link').href = url;
+        document.getElementById('download_link').click();
+    },
     csv:true,
     set_text:function(text){
         document.getElementById(this.output).value = text;
