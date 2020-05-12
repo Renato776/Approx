@@ -29,6 +29,15 @@ const Printing = {
         this.printLog(this.format_cell(this.table_size,title));
     },
     format_row: function (row){
+        if(this.csv){
+            let ans = '';
+            for (let i = 0; i<row.length;i++){
+                ans+=row[i]+','
+            }
+            ans = ans.substr(0,ans.length-1);
+            this.printLog(ans);
+            return;
+        }
         let size = this.table_size;
 		if(!size) size = 500;
         let formatted_row = "";
@@ -39,8 +48,8 @@ const Printing = {
         }
         this.printLog(formatted_row);
     },
-    print_object_header: function (object,csv = false){
-        if(csv){
+    print_object_header: function (object){
+        if(this.csv){
             let head = '';
             for	(let k = 0; k<Object.keys(object).length;k++){
                 head+=Object.keys(object)[k]+',';
@@ -56,8 +65,8 @@ const Printing = {
         }
         this.format_row(header,size);
     },
-    print_object_body: function (object,csv = false){
-        if(csv){
+    print_object_body: function (object){
+        if(this.csv){
             let values = '';
             for (let j = 0; j<Object.keys(object).length;j++){
                 values+= (object[Object.keys(object)[j]].toString())+',';
@@ -81,11 +90,11 @@ const Printing = {
         this.format_title(text);
         Printing.printLog(this.fill_string(size,'-'));
     },
-    print_object_list: function (table,csv = false){
+    print_object_list: function (table){
         if(table.length==0)return;
-        this.print_object_header(table[0],csv);
+        this.print_object_header(table[0],this.csv);
         for (let i = 0; i<table.length; i ++){
-            this.print_object_body(table[i],csv);
+            this.print_object_body(table[i],this.csv);
         }
     },
     fill_string : function (size,content) {
