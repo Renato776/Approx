@@ -8,13 +8,25 @@ const Printing = {
         document.getElementById('download_link').href = url;
         document.getElementById('download_link').click();
     },
-    show_table:function(table){
-
+    show_table:function(data){
+        Printing.printLog(Printing.fill_string(Printing.table_size,'-'));
+        Printing.format_row(["ti","wi"]);
+        Printing.printLog(Printing.fill_string(Printing.table_size,'-'));
+        let a = data.a;
+        let h = data.h;
+        let key_length = Object.keys(data).length - 2; //We have to remove a & h from the key count.
+        for (let i = 0; i<key_length;i++){
+            Printing.format_row([(a+i*h).toString(),data[i].toString()]);
+        }
     },
-    show_derivative:function(table){
-        
+    show_derivative:function(data){
+        Printing.print_table_title("Derivative Approximation");
+        Printing.print_object_header(data);
+        for (let i = 0; i<data.x.length;i++){
+            Printing.format_row([data.x[i].toString(),data.y[i].toString(),data.dy[i].toString(),data.m[i]]);
+        }
     },
-    csv:true,
+    csv:false,
     set_text:function(text){
         document.getElementById(this.output).value = text;
     },

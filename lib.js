@@ -7,7 +7,7 @@ const Approx = {
         let FATAL_FAILURE = 0;
         let a = x0;
         let y0 = equation(x0);
-        while(this.invalid(y0)&&(FATAL_FAILURE!=MAX_INTENTS)){
+        while(Approx.invalid(y0)&&(FATAL_FAILURE!=MAX_INTENTS)){
             a -= gap;
             y0 = equation(a);
             FATAL_FAILURE++;
@@ -23,7 +23,7 @@ const Approx = {
         MAX_INTENTS = config['bisect'].MAX_ROOT_SEARCH_INTENTS;
         b = a - gap;  //We'll start looking for any root at the left of a.
         y1 = equation(b);
-        while(!this.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
+        while(!Approx.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
             b -= gap;
             y1 = equation(b);
             FATAL_FAILURE++;
@@ -33,7 +33,7 @@ const Approx = {
             MAX_INTENTS = config['bisect'].MAX_ROOT_SEARCH_INTENTS;
             b = a + gap;
             y1 = equation(b);
-            while(!this.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
+            while(!Approx.sign_change(y0,y1)&&FATAL_FAILURE!=MAX_INTENTS){
                 b += gap;
                 y1 = equation(b);
                 FATAL_FAILURE++;
@@ -52,7 +52,7 @@ const Approx = {
         let error  = 1;
         let exactness = config['bisect'].exactness;
         while ((!(f_x==0 || error<exactness ))&&FATAL_FAILURE!=MAX_INTENTS){
-            if(this.sign_change(f_x,f_a)){
+            if(Approx.sign_change(f_x,f_a)){
                 b = x;
             }else{
                 a = x;
@@ -210,7 +210,6 @@ Linear solution to the system:`);
                 Printing.print_table_title("Procedimiento: K(s):");
                 Printing.print_object_list(k);
             }
-            Printing.print_table_title("Resultado:");
             Printing.print_object_list(table);
 		}
 		return table[table.length-1];
